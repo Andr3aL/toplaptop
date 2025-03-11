@@ -47,7 +47,25 @@ if (!empty($_POST)) {
             $category = trim($_POST['category']);
             
             // variables pour stocker les infos de la table image
+
             
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
      
 // $info = message($price, 'danger');
             // $emailExist = checkEmailUser($email);
