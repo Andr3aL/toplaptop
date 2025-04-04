@@ -317,4 +317,61 @@ function showUserId(string $name) : mixed {
 
 }
 
+
+
+
+function addUser(string $lastName, string $firstName, string $email, string $mdp, string $civility) : void {
+
+    $data = [
+        'lastName' => $lastName,
+        'firstName' => $firstName,
+
+        'email' => $email,
+
+        'mdp' => $mdp,
+        'civility' => $civility
+
+    ];
+
+
+
+foreach($data as $key => $value){
+
+    $data[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+   
+
+}
+
+
+    $cnx = connexionBdd();
+    $sql = "INSERT INTO users (lastName, firstName, email, mdp, civility) VALUES (:lastName, :firstName, :email, :mdp, :civility)";
+   
+
+    $request = $cnx->prepare($sql);
+
+    $request->execute($data);
+
+}
+
+
+
+
+function checkEmailUser(string $email) : mixed { // soit on récupère un tableau avec un seul champ (mais c'est bien un tableau), soit on récupère un booléen qui donne false
+
+    $cnx = connexionBdd();
+    $sql = "SELECT email FROM users WHERE email = :email";
+    $request = $cnx->prepare($sql);
+    $request->execute(array(
+
+        ':email' => $email
+    ));
+
+    $result = $request->fetch(); // transforme l'objet qu'on récupère en tableau !
+
+    return $result; // car on veut le tableau
+
+}
+
+
+
 ?>
