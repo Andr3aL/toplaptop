@@ -1,4 +1,9 @@
 <?php
+session_start(); // on démarre la session pour pouvoir utiliser $_SESSION
+
+if (!isset($_SESSION['panier']) || !is_array($_SESSION['panier'])) {
+    $_SESSION['panier'] = array();
+}
 
 define("RACINE_SITE", "http://localhost/projetEcommerce/");
 
@@ -258,6 +263,34 @@ function connexionBdd() : object {
 // foreignKeyBrandProducts('products', 'brand_id', 'brand', 'id_brand');
 
 
+
+
+
+
+
+
+
+if (isset($_GET['action']) && $_GET['action'] === 'deconnexion') {
+
+    unset($_SESSION['client']); // on supprime la session client (on déconnecte l'utilisateur)
+    header('location:'.RACINE_SITE.'index.php');
+
+}
+
+
+
+/*
+                          ╔═════════════════════════════════════════════╗
+                          ║                                             ║
+                          ║                PRODUCTS                     ║
+                          ║                                             ║
+                          ╚═════════════════════════════════════════════╝ 
+                          
+*/
+
+
+
+
 function addProduct(string $brand_id, string $name, string $price, string $infos, string $description, string $category) : void {
     $data = [
         'brand_id' => $brand_id,
@@ -301,11 +334,11 @@ function allProducts() : mixed {
 //     $result = $request->fetch();
 // }
 
-function showProductByName(string $name) : mixed {
+function showProductById(string $name) : mixed {
 
     $cnx = connexionBdd();
     $sql = "SELECT id_product FROM products WHERE name = :name";
-    $request = $cnx->prepare($sql); // prepare est utilisée pour des requetes qui se répètent plusieurs fois (préférentiellement)
+    $request = $cnx->prepare($sql);
 
     $request->execute(array(
 
@@ -313,12 +346,135 @@ function showProductByName(string $name) : mixed {
 
     ));
 
-    $result = $request->fetch(); // fetch et non fetchAll car on veut un identifiant unique
+    $result = $request->fetch();
     return $result;
 
 }
 
 
+function showProductByName(string $name) : mixed {
+    $cnx = connexionBdd();
+    $sql = "SELECT name FROM products WHERE name = :name";
+    $request = $cnx->prepare($sql);
+    $request->execute(array(
+
+        ":name" => $name,
+
+    ));
+    $result = $request->fetch();
+    return $result;
+}
+
+
+function checkProduct(string $name) : mixed {
+
+    $cnx = connexionBdd();
+    $sql = "SELECT name FROM products WHERE name = :name";
+    $request = $cnx->prepare($sql);
+    $request->bindValue('name', $name, PDO::PARAM_STR);
+
+    $request->execute();
+    $result = $request->fetch();
+
+    return $result;
+
+}
+
+function updateProduct(int $id, string $name, int $price, string $infos, string $description, string $category) : void {
+
+    $cnx = connexionBdd();
+    $sql = "UPDATE products SET
+     
+    name = :name,
+    price = :price,
+    infos = :infos,
+    description = :description,
+    category = :category
+    
+    WHERE id_product = :id";
+
+    $request = $cnx->prepare($sql);
+    
+    $request->execute(array(
+
+        ':id' => $id,
+        ':name' => $name,
+        ':price' => $price,
+        ':infos' => $infos,
+        ':description' => $description,
+        ':category' => $category
+    ));
+}
+
+function showIdProduct(int $id) : mixed {
+    $cnx = connexionBdd();
+    $sql = "SELECT * FROM products WHERE id_product= :id";
+    $request = $cnx->prepare($sql);
+    $request->execute(array(
+
+        ":id" => $id,
+
+    ));
+    $result = $request->fetch();
+    return $result;
+}
+
+
+function showProductByBrand() : mixed {
+    $cnx = connexionBdd();
+    $sql = "SELECT * FROM products WHERE brand_id = :id";
+    $request = $cnx->query($sql);
+    $result = $request->fetchAll();
+    return $result;
+}
+
+function deleteFilm(int $id) : void {
+    $cnx = connexionBdd();
+    $sql = "DELETE FROM products WHERE id_product = :id";
+    $request = $cnx->prepare($sql);
+    $request->execute(array(
+
+        ':id' => $id
+
+    ));
+
+}
+
+function all3Products() : mixed {
+
+    $cnx = connexionBdd();
+    $sql = "SELECT * FROM products ORDER BY id_product DESC LIMIT 3";
+    $request = $cnx->query($sql);
+    $result = $request->fetchAll();
+    return $result;
+}
+
+function initPanier() {
+    if (!isset($_SESSION['panier'])) {
+        $_SESSION['panier'] = array();
+    }
+}
+
+// gestion de la déconnexion
+if (isset($_GET['action']) && $_GET['action'] === 'deconnexion') {
+    // Vider le panier avant de se déconnecter
+    $_SESSION['panier'] = array();
+    // Supprimer l'indice 'client' de la session
+    unset($_SESSION['client']);
+    // Redirection
+    header('location:'.RACINE_SITE.'index.php');
+    exit;
+}
+
+
+/*
+                          ╔═════════════════════════════════════════════╗
+                          ║                                             ║
+                          ║                USERS                        ║
+                          ║                                             ║
+                          ╚═════════════════════════════════════════════╝ 
+                          
+*/
 
 
 function addUser(string $lastName, string $firstName, string $email, string $mdp, string $civility) : void {
@@ -372,6 +528,156 @@ function checkEmailUser(string $email) : mixed { // soit on récupère un tablea
     return $result; // car on veut le tableau
 
 }
+
+function allUsers() : mixed {
+
+    $cnx = connexionBdd();
+    $sql = "SELECT * FROM users";
+    $request = $cnx->query($sql);
+    $result = $request->fetchAll();
+    return $result;
+
+}
+
+function showUser(int $id) : mixed {
+
+    $cnx = connexionBdd();
+    $sql = "SELECT * FROM users WHERE id_user = :id";
+    $request = $cnx->prepare($sql);
+
+    $request->execute(array(
+
+        ':id' => $id,
+
+    ));
+
+    $result = $request->fetch();
+    return $result;
+
+}
+
+
+function updateRole(string $role, int $id) : void {
+
+    $cnx = connexionBdd();
+    $sql = "UPDATE users SET role = :role WHERE id_user = :id";
+    $request = $cnx->prepare($sql);
+
+    $request->execute(array(
+
+        ':role' => $role,
+        ':id' => $id
+
+    ));
+}
+
+function deleteUser(int $id) : void {
+
+    $cnx = connexionBdd();
+    $sql = "DELETE FROM users WHERE id_user = :id";
+    $request = $cnx->prepare($sql);
+
+    $request->execute(array(
+
+        ':id' => $id
+
+    ));
+
+}
+
+
+/*
+                          ╔═════════════════════════════════════════════╗
+                          ║                                             ║
+                          ║                BRANDS                       ║
+                          ║                                             ║
+                          ╚═════════════════════════════════════════════╝ 
+                          
+*/
+
+function showBrand(string $name) : mixed {
+    $cnx = connexionBdd();
+    $sql = "SELECT * FROM brand WHERE name = :name";
+    $request = $cnx->prepare($sql);
+    $request->execute(array(
+
+        ":name" => $name,
+
+    ));
+    $result = $request->fetch();
+    return $result;
+}
+
+
+function addBrand(string $name) {
+    $data = [
+        'name' => $name
+    ];
+
+    foreach ($data as $key => $value) {
+        $data[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+    }
+
+    $cnx = connexionBdd();
+    $sql = "INSERT INTO brand name VALUES :name";
+    $request = $cnx->prepare($sql);
+    $request->execute($data);
+
+}
+
+function allBrand($order = "") : mixed {
+
+    $cnx = connexionBdd();
+    $sql = "SELECT * FROM brand $order";
+    $request = $cnx->query($sql);
+    $result = $request->fetchAll();
+    return $result;
+
+}
+
+
+function showIdBrand(int $id) : mixed {
+    $cnx = connexionBdd();
+    $sql = "SELECT * FROM brand WHERE id_brand = :id";
+    $request = $cnx->prepare($sql);
+    $request->execute(array(
+
+        ":id" => $id,
+
+    ));
+    $result = $request->fetch();
+    return $result;
+}
+
+function updateBrand(int $id, string $name) : void {
+
+    $cnx = connexionBdd();
+    $sql = "UPDATE brand SET name = :name WHERE id_brand = :id";
+    $request = $cnx->prepare($sql);
+
+    $request->execute(array(
+
+        ':id' => $id,
+        ':name' => $name
+
+    ));
+}
+function selectBrand(int $id, string $name) : mixed {
+
+    $cnx = connexionBdd();
+    $sql = "SELECT name = :name WHERE id_brand = :id";
+    $request = $cnx->prepare($sql);
+
+    $request->execute(array(
+
+        ':id' => $id,
+        ':name' => $name
+
+    ));
+    $result = $request->fetch();
+    return $result;
+}
+
 
 
 
