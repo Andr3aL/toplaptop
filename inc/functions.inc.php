@@ -258,8 +258,9 @@ function connexionBdd() : object {
 // foreignKeyBrandProducts('products', 'brand_id', 'brand', 'id_brand');
 
 
-function addProduct(string $name, string $price, string $infos, string $description, string $category) : void {
+function addProduct(string $brand_id, string $name, string $price, string $infos, string $description, string $category) : void {
     $data = [
+        'brand_id' => $brand_id,
         'name' => $name,
         'price' => $price,
         'infos' => $infos,
@@ -273,7 +274,7 @@ function addProduct(string $name, string $price, string $infos, string $descript
     }
 
     $cnx = connexionBdd();
-    $sql = "INSERT INTO products(name, price, infos, description, category) VALUES (:name, :price, :infos, :description, :category)";
+    $sql = "INSERT INTO products(brand_id, name, price, infos, description, category) VALUES (:brand_id, :name, :price, :infos, :description, :category)";
     // (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ----> Des fois, sur internet, on peut trouver cette notation pour les VALUES
 
     $request = $cnx->prepare($sql);
@@ -300,7 +301,7 @@ function allProducts() : mixed {
 //     $result = $request->fetch();
 // }
 
-function showUserId(string $name) : mixed {
+function showProductByName(string $name) : mixed {
 
     $cnx = connexionBdd();
     $sql = "SELECT id_product FROM products WHERE name = :name";

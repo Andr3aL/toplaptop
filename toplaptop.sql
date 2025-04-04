@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : localhost
--- Généré le : ven. 04 avr. 2025 à 09:52
+-- Généré le : ven. 04 avr. 2025 à 10:05
 -- Version du serveur : 8.0.30
 -- Version de PHP : 8.4.5
 
@@ -20,6 +20,8 @@ SET time_zone = "+00:00";
 --
 -- Base de données : `toplaptop`
 --
+CREATE DATABASE IF NOT EXISTS `toplaptop` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `toplaptop`;
 
 -- --------------------------------------------------------
 
